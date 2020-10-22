@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Mainpage</title>
+        <link rel="stylesheet" type="text/css" href="bootstrap.min.css"/>
+        <script src="jquery.min.js"></script>
+        <script src="bootstrap.min.js"></script>
+        <script src="angular.js"></script>
+    </head>
+    <body ng-app="parking" style="background-image: url('road.jpg')">
+        <div ng-controller="parkingController" class="container" 
+        style="background-color: white;
+        padding-left: 20px; padding-right: 20px;">
+
+            <div class=" row">
+                <div class="col-md-6">
+                    <a href="mainpage.html" class="btn btn-outline-primary">Bookings</a>
+                    <a href="cars.html" class="btn btn-outline-warning">Cars</a>
+                </div>
+                <div class="col-md-6">
+                    
+                </div>
+            </div>
+
+            <hr>
+            <form name="booking_form" class="jumbotron">
+                <div class="form-row">
+                    <h1>New Booking</h1>
+                </div>
+                <br>
+                
+                <div class="form-row">
+                    <div class="col">
+                        <input type="text" name="car_field" ng-required="true" class="form-control" placeholder="Find car" ng-model="newBooking.car_name">
+                    </div>
+                    <div class="col">
+                        <select multiple class="form-control" >
+                            <option ng-repeat="car in cars| filter:newBooking.car_name" ng-click="newBooking.car_id = car.id; newBooking.car_name = car.name +' - ' +car.plate">{{car.name + " - "+car.plate }}</option>
+                        </select>
+                    </div>
+                    
+                </div>
+                <br>
+                <div class="form-row">
+                    <div class="col">
+                        <input type="datetime-local" class="form-control" ng-required="true" name="from_date_field" ng-model="newBooking.date_from">
+                    </div>
+                    <div class="col">
+                        <input type="date" class="form-control" ng-required="true" name="to_date_field"  ng-model="newBooking.date_to" ng-min="newBooking.date_from">
+                    </div>
+                    <div class="col">
+                        <input type="time" class="form-control" ng-required="true" name="to_date_field"  ng-model="newBooking.date_to" ng-min="newBooking.date_from">
+                    </div>
+                    <div class="col">
+                        <input type="date" class="form-control" ng-required="true" name="to_date_field"  ng-model="newBooking.date_to" ng-min="newBooking.date_from">
+                    </div>
+                </div>
+                
+                <br>
+                <div class="form-row">
+                    <div class="col">
+                        <input type="text" name="pickup_field" class="form-control" placeholder="Pick up" ng-model = "newBooking.pickup_point">
+                    </div>
+                    <div class="col">
+                        <input type="text" name="dropoff_field" class="form-control" placeholder="DropOff" ng-model = "newBooking.dropoff_point">
+                    </div>
+                    <div class="col">
+                        <input type="text" name="client_field" class="form-control" placeholder="Client name" ng-model = "newBooking.client_name">
+                    </div>
+                    <div class="col">
+                        <input type="text" name="telephone_field" class="form-control" placeholder="tel" ng-model = "newBooking.telephone">
+                    </div>
+                    <div class="col">
+                        <input type="text" name="address_field" class="form-control" placeholder="address" ng-model = newBooking.address>
+                    </div>
+                </div>
+                <br>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="paidField" ng-model="newBooking.paid" ng-true-value="'1'" ng-false-value="'0'">
+                    <label class="form-check-label" for="paidField">Paid</label>
+                </div>
+                <hr>
+                <br>
+                <div class="row">
+                    <div class="col">
+                        <input type="button" ng-disabled="booking_form.$invalid" class="btn btn-primary" value="Add booking" ng-click=" addBooking(newBooking)">
+                    </div>
+                </div>
+
+            </form>
+            
+
+
+            <hr>
+            <br>
+            <h1>Bookings</h1>
+            <div class="row" >
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col">
+                            <input type="text" class="form-control" ng-model="filter.car_name" placeholder="filter by car">
+                            <select multiple class="form-control">
+                                <option ng-repeat="car in cars| filter:filter.car_name" ng-click="filter.car_id=car.id; filter.car_name = car.plate + '-' + car.name">{{car.plate +"-"+ car.name}}</option>
+                            </select>
+                        </div>
+                        <div class="col">
+                            <input class="btn btn-outline-dark" type="button" value="Go" ng-click="filter.car_name.length>0? getBookingsByCarId(filter.car_id): getAllBookings()">
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class="col-md-6">
+                    <input type="button" class="btn btn-primary" ng-click= "getCurrentBookings()" value="current bookings">
+                    <input type="button" class="btn btn-warning" ng-click="getPastBookings()" value="past bookings">
+                    <input type="button" class="btn btn-dark" ng-click="getFutureBookings()" value="future bookings">
+                    <input type="button" class="btn btn-success" ng-click="getAllBookings()" value="all bookings">
+                    
+                </div>
+                
+            </div>
+            <div class="row">
+                <table class="table table-hover ">
+                    <thead>
+                        <tr>
+                            <!-- <th scope="col">Booking id</th> -->
+                            <th scope="col">From</th>
+                            <th scope="col">To</th>
+                            <th scope="col">Car</th>
+                            <th scope="col">Pickup</th>
+                            <th scope="col">DropOff</th>
+                            <th scope="col">Paid</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="booking in bookings">
+                            <!-- <th scope="row">{{booking.id}}</th> -->
+                            <td>{{booking.date_from *1000 | date:'d/M/yy, h:mm a'}}</td>
+                            <td>{{booking.date_to *1000 | date:'d/M/yy, h:mm a'}}</td>
+                            <td>{{booking.car.plate}} - {{booking.car.name}}</td>
+                            <!-- <td><input class="form-control" type="text" ng-model="booking.pickup_point" readonly></td>
+                            <td><input class="form-control" type="text" ng-model="booking.dropoff_point" readonly></td> -->
+                            <td>{{booking.pickup_point}}</td>
+                            <td>{{booking.dropoff_point}}</td>
+                            <td>
+                                <svg ng-show="booking.paid != 0" width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-check2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
+                                </svg>
+                            </td>
+                            <td> 
+                                <!-- <input type="button" value="remove" class="btn btn-sm btn-outline-warning" ng-click="removeBooking(booking.id)">
+                                <input type="button" value="validate" class="btn btn-sm btn-outline-success"> -->
+                                <!-- <input type="button"  value="update" class="btn btn-sm btn-outline-success" ng-click="booking.car_id = booking.car.id; updateBooking(booking)"> -->
+                                
+                                <button type="button" ng-click="setCurrentBooking(booking)" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#exampleModal">
+                                    More
+                                </button>    
+                                
+                                
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+            
+            <!-- Modal -->
+            <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">{{currentBooking.car.name + " - "+ currentBooking.car.plate}}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    </div>
+                    <div class="modal-body">
+
+                        <form>
+                            <div class="form-group row">
+                              <label for="inputDateFrom" class="col-sm-2 col-form-label">From</label>
+                              <div class="col-sm-10">
+                                <input type="text" class="form-control" id="inputDateFrom" ng-value="currentBooking.date_from *1000 | date:'d/M/yy, h:mm a'"readonly>
+                              </div>
+                            </div>
+                            <div class="form-group row">
+                              <label for="inputDateTo" class="col-sm-2 col-form-label">Until</label>
+                              <div class="col-sm-10">
+                                <input type="text" class="form-control" id="inputDateTo"  ng-value="currentBooking.date_to *1000 | date:'d/M/yy, h:mm a'" readonly>
+                              </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="inputPickUpPoint" class="col-sm-2 col-form-label">Pickup</label>
+                                <div class="col-sm-10">
+                                  <input type="text" class="form-control" id="inputPickUpPoint"  ng-model= "currentBooking.pickup_point">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="inputDropoffPoint" class="col-sm-2 col-form-label">DropOff</label>
+                                <div class="col-sm-10">
+                                  <input type="text" class="form-control" id="inputDropoffPoint"  ng-model="currentBooking.dropoff_point">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="inputClientName" class="col-sm-2 col-form-label">Client</label>
+                                <div class="col-sm-10">
+                                  <input type="text" class="form-control" id="inputClientName"  ng-value="currentBooking.client_name " ng-model = "currentBooking.client_name">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="inputTelephone" class="col-sm-2 col-form-label">Tel</label>
+                                <div class="col-sm-10">
+                                  <input type="text" class="form-control" id="inputTelephone"  ng-value="currentBooking.telephone " ng-model="currentBooking.telephone">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="inputAddress" class="col-sm-2 col-form-label">Address</label>
+                                <div class="col-sm-10">
+                                  <input type="text" class="form-control" id="inputAddress" ng-value="currentBooking.address " ng-model="currentBooking.address">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="form-check-label col-sm-2 col-form-label" for="inputPaid">Paid</label>
+                                <div class="col-sm-10">
+                                    <input type="checkbox" class="form-check-input form-control" id="inputPaid" ng-model="currentBooking.paid" ng-true-value="'1'" ng-false-value="'0'">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="button" class="btn btn-danger" value="Delete" data-dismiss="modal" ng-click="removeBooking(currentBooking.id)">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal" ng-click="getAllBookings()">Close</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="currentBooking.car_id = currentBooking.car.id; updateBooking(currentBooking)" >Save changes</button>
+                    </div>
+                </div>
+                </div>
+            </div>
+
+        </div>
+        
+        
+        <script src="app.js"></script> 
+    </body>
+    
+</html>

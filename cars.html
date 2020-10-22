@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Mainpage</title>
+        <link rel="stylesheet" type="text/css" href="bootstrap.min.css"/>
+        <script src="jquery.min.js"></script>
+        <script src="bootstrap.min.js"></script>
+        <script src="angular.js"></script>
+    </head>
+    <body ng-app="parking">
+        <div ng-controller="parkingController" class="container">
+
+            <div class=" row">
+                <div class="col-md-6">
+                    <a href="mainpage.html" class="btn btn-outline-primary">Bookings</a>
+                    <a href="cars.html" class="btn btn-outline-warning">Cars</a>
+                </div>
+                <div class="col-md-6">
+                
+                </div>
+            </div>
+            <hr>
+            
+            <hr>
+            <form name="new_car_form" class="jumbotron">
+                <div class="form-group">
+                    <h1>Add new Car</h1>
+                </div>
+                <br>
+                <div class="form-row">
+                    <div class="col">
+                        <input type="text" class="form-control" name="name_field" placeholder="Model" ng-model="newCar.name" ng-required="true">
+                    </div>
+                    <div class="col">
+                        <input type="text" class="form-control" name="plate_field" placeholder="Plate" ng-model="newCar.plate" ng-required="true">
+                    </div>
+                    <div class="col">
+                        <input type="button" class="btn btn-primary" value="Add Car" ng-click="addCar(newCar.name, newCar.plate)" ng-disabled="new_car_form.$invalid">
+                    </div>
+                </div>
+            
+            </form>
+            <hr>
+            <div class="row">
+                <hr>
+                <div class="col-md-8">
+                    <h1>All cars</h1>
+                </div>
+                <div class="col-md-4">
+                    <input class="btn btn-outline-primary" type="button" id="secondbutton" value="Get All Cars" ng-click="getAllCars()">
+                    <input class="btn btn-outline-success" type="button" value="get Available cars" ng-click="getAvailableCars()">
+                </div>
+            </div>
+
+            <div class="row">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">Car id</th>
+                            <th scope="col">Model</th>
+                            <th scope="col">Plate</th>
+                            <th scope="col">Next Booking</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="car in cars">
+                            <th scope="row">{{car.id}}</th>
+                            <td>{{car.name}}</td>
+                            <td>{{car.plate}}</td>
+                            <td>{{car.next_booking.length>0?( car.next_booking[0].date_from *1000  | date:'d/M/yy, h:mm a'):'Not booked'}}
+                                <input type="button" ng-click="setCarNextBooking(car.next_booking)" data-toggle="modal" data-target="#exampleModalLong" class="btn btn-success btn-sm" value="more" ng-show="car.next_booking.length>0">
+                            </td>
+                            <td><input type="button" class="btn btn-outline-warning" value="remove" ng-click="removeCar(car.id)"></td>
+                          </tr>
+                    </tbody>
+                </table>
+            </div>
+
+
+            <!-- Modal -->
+            <div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Next Bookings for {{nextBookings[0].car.name + " - " +nextBookings[0].car.plate}}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">From</th>
+                                    <th scope="col">Until</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="booking in nextBookings">
+                                    <td>{{booking.date_from *1000  | date:'d/M/yy, h:mm a'}}</td>
+                                    <td>{{booking.date_to *1000  | date:'d/M/yy, h:mm a'}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+                    </div>
+                </div>
+                </div>
+            </div>
+            
+        </div>
+        
+        
+        <script src="app.js"></script> 
+    </body>
+    
+</html>
