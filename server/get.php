@@ -1,5 +1,7 @@
 <?php
     header("Access-Control-Allow-Origin: *");
+    header('Content-Type: application/json');
+    
     require_once("credentials.php");
     $database = connectDB();
     $contents = file_get_contents('php://input');
@@ -9,10 +11,12 @@
         $action = $_GET['action'];
         switch($action){
             case 'get_all_cars':
-                getAllCars();
+                $cars = getAllCars();
+                echo json_encode($cars);
                 break;
             case 'get_all_bookings':
-                getAllBookings();
+                 $bookings = getAllBookings();
+                 echo json_encode($bookings);
                 break;
             case 'add_car':
                 if(isset($_GET['plate']) && isset($_GET['name']) ){
@@ -22,7 +26,7 @@
                     echo json_encode(getCarById($result_id));
     
                 }else{
-                    die("die mf");
+                    echo makeResponse(400,"Bad request. To add a new car a plate=<plate_number> and name=<car_name> must be provided");
                 }
                 
                 break;
@@ -41,9 +45,8 @@
                     //isws kanoume kai mia parapanw epeksergasia
                     addBooking($date_from,$date_to,$car_id, $pickup_point, $dropoff_point, $client_name, $tel, $address);    
                 }else{
-                    die("die mf");//TODO PREPEI NA TO DOUME
+                    echo makeResponse(400, "Bad request. To add a booking a date_from, date_to, and car_id must be provided");
                 }
-                
                 break;
             case 'get_available_cars':
                 echo json_encode(getAvailableCars());
@@ -65,41 +68,16 @@
                     $result = getBookingsByCarId($car_id);
                     echo json_encode($result);
                 }else{
-                    die("mf");//TODO PREPEI NA TO DOUME
+                    echo makeResponse(400, "Bad request. car_id not provided");
                 }
                 break;
             default:
-                // echo $action;
+                echo makeResponse(400, "Bad request");
                 break;
         }
-    }else if(isset($_POST['action'])){
-        
-        $action = $_POST['action'];
-        echo $action;
-
-        switch($action){
-            case 'remove_car':  
-                if(isset($_POST['car_id'])){
-                    $car_id = $_POST['car_id'];
-                    removeCar($car_id);
-                }
-                break;
-        }
-
-
     }else{
-        if(count ($_POST)>0){
-            echo"ecoume";
-            
-        }else{
-            echo "den exoume";
-            $params = json_decode(file_get_contents('php://input'),true);
-            echo file_get_contents('php://input');
-        }
+        echo makeResponse(400, "Bad request");
     }
 
-    
-
-    // echo $_POST['action'];
 
 ?>
