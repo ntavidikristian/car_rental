@@ -2,6 +2,9 @@
 
 require_once('database.php');
 
+define('PERMISSION_WRITE', "PERMISSION_WRITE");
+define('PERMISSION_READ', "PERMISSION_READ");
+
 //create connection
 
 
@@ -265,4 +268,80 @@ function makeResponse($status_code, $message){
     return json_encode($response);
 }
 
+
+
+function is_token_valid($token){
+    $query = "select valid from oauth where token = ?";
+    $response = getQuerySecure($query , array($token));
+
+    if (count($response)>0 ){
+        // echo "found ". count($response) . " results <br>";
+        // var_dump($response);
+        if ($response[0]->valid == '1'){
+            return true;
+        }else {
+            return false;
+        }
+    }else{
+        // echo "no result <br>";
+        return false;
+    }
+}
+
+function is_token_granted($token, $permission){
+    switch( $permission){
+        case PERMISSION_WRITE:
+            $query = "select write_granted from oauth where token = ?";
+            $response = getQuerySecure($query, array($token));
+            if( count($response)> 0){
+                if( $response[0]->write_granted == '1'){
+                    return true;
+                }else{
+                    return false;
+                }
+            }else{
+                return false;
+            }
+            break; 
+        case PERMISSION_READ:
+            $query = "select read_granted from oauth where token = ?";
+            $response = getQuerySecure($query, array($token));
+            if( count($response)> 0){
+                if( $response[0]->read_granted =='1'){
+                    return true;
+                }else{
+                    return false;
+                }
+            }else{
+                return false;
+            }
+            break;
+        default:
+            return false;
+    }
+}
+
+function validate_writing($USE_AUTHENTICATION, $token){
+    if(! $USE_AUTHENTICATION){
+        return;
+    }
+    if( is_token_granted($token, PERMISSION_WRITE)){
+        return;
+    }
+
+    echo makeResponse(401, "Unauthorized to write");
+    die();
+}
+
+function validate_reading($USE_AUTHENTICATION, $token){
+    if(! $USE_AUTHENTICATION){
+        return true;
+    }
+    if( is_token_granted($token , PERMISSION_READ)){
+        return true;
+    }
+
+    echo makeResponse(401, "Unauthorized to read");
+    die();
+}
 ?>

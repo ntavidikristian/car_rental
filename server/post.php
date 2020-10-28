@@ -5,9 +5,16 @@
 
     require_once("credentials.php");
     $database = connectDB();
-    $contents = json_decode(file_get_contents('php://input'),true);
-    // echo $contents;
-    // echo "swag";
+    $contents = json_decode(file_get_contents('php://input'), true);
+    $USE_AUTHENTICATION = true;
+    @$token = $contents['token'];
+
+    if($USE_AUTHENTICATION){
+        if(! is_token_valid($token)){
+            echo makeResponse(401, "Bad request. Invalid token");
+            die();
+        }
+    }
 
     $action = $contents['action'];
     var_dump($contents);
