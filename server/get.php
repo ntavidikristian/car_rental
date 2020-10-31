@@ -59,9 +59,10 @@
                     $client_name = isset($_GET['client_name'])?$_GET["client_name"]: null;
                     $tel = isset($_GET['telephone'])?$_GET["telephone"]: null;
                     $address = isset($_GET['address'])?$_GET["address"] : null;
+                    $paid = isset($_GET['paid'])?$_GET["paid"] : null;
 
                     //isws kanoume kai mia parapanw epeksergasia
-                    addBooking($date_from,$date_to,$car_id, $pickup_point, $dropoff_point, $client_name, $tel, $address);    
+                    addBooking($date_from,$date_to,$car_id, $pickup_point, $dropoff_point, $client_name, $tel, $address,$paid);    
                 }else{
                     echo makeResponse(400, "Bad request. To add a booking a date_from, date_to, and car_id must be provided");
                 }

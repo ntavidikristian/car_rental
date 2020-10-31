@@ -62,10 +62,11 @@
             $address = $booking['address'];
             $paid = $booking['paid'];
 
-            if($paid != '1' || $paid!= '0'){
+            echo "paid = ". $paid;
+            if($paid != '1' && $paid!= '0'){
                 $paid = '0';
             }
-            
+                        
             addBooking($date_from, $date_to, $car_id, $pickup_point, $dropoff_point, $client_name, $telephone, $address, $paid);
             break;
     }

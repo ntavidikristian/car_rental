@@ -26,7 +26,7 @@ function connectDB(){
 
 function getAllCars(){
     
-    $query = "select * from cars_table";
+    $query = "select * from " . DATABASE_CARS_TABLE;
     $values = array();
 
     $cars_array = getQuerySecure($query, $values);
@@ -37,7 +37,7 @@ function getAllCars(){
 
 function getAllBookings(){
 
-    $query = "select * from bookings
+    $query = "select * from ". DATABASE_BOOKINGS_TABLE ." 
     order by id desc";
 
     $bookings_array = getQuerySecure($query, array());
@@ -50,7 +50,7 @@ function getAllBookings(){
 
 function getBookingsByCarId($car_id){
 
-    $query = "select * from bookings where car_id = ?";
+    $query = "select * from ". DATABASE_BOOKINGS_TABLE ." where ". DATABASE_BOOKINGS_CARID ." = ?";
     $values = array($car_id);
 
     $result = getQuerySecure($query, $values);
@@ -118,7 +118,7 @@ function getQuerySecure($query, $values){
 
 
 function getCarById($id){
-    $query = "select * from cars_table where id = ?";
+    $query = "select * from ".DATABASE_CARS_TABLE." where ".DATABASE_CARS_ID." = ?";
     $result = getQuerySecure($query, array($id));
 
     $to_return = null;
@@ -134,43 +134,43 @@ function appendNextBooking(&$cars_array){
     }
 }
 function getCarByPlate($plate){
-    $query = "select * from cars_table where plate = ?";
+    $query = "select * from ". DATABASE_CARS_TABLE." where ".DATABASE_CARS_PLATE." = ?";
     return getQuerySecure($query, array($plate));
 }
 
 function getCarByName($name){
-    $query = "select * from cars_table where name like  ?";
+    $query = "select * from ".DATABASE_CARS_TABLE. " where " .DATABASE_CARS_NAME. " like  ?";
     $result = getQuerySecure($query, $name);
     // $result->next_bookings = getCarNextBookings($result->id);
     return $result;
 }
 
 function getBookingByCarName($name){
-    $query = "select bookings.id as id, date_from, date_to, car_id, pickup_point, dropoff_point ,telephone, client_name, address, paid
-    from bookings, cars_table
-     where car_id = cars_table.id and cars_table.name like ?";
+    $query = "select ".DATABASE_BOOKINGS_TABLE.".".DATABASE_BOOKINGS_ID." as id, ".DATABASE_BOOKINGS_DATEFROM.", ".DATABASE_BOOKINGS_DATETO.", ".DATABASE_BOOKINGS_CARID.", ".DATABASE_BOOKINGS_PICKUPPOINT.", ".DATABASE_BOOKINGS_DROPOFFPOINT." ,".DATABASE_BOOKINGS_TELEPHONE.", ".DATABASE_BOOKINGS_CLIENTNAME.", ".DATABASE_BOOKINGS_ADDRESS.", ".DATABASE_BOOKINGS_PAID."
+    from ".DATABASE_BOOKINGS_TABLE.", ".DATABASE_CARS_TABLE."
+     where ".DATABASE_BOOKINGS_CARID." = ".DATABASE_CARS_TABLE.".".DATABASE_CARS_ID." and ".DATABASE_CARS_TABLE.".".DATABASE_CARS_NAME." like ?";
     return getQuerySecure($query, array($name));
 }
 
 function removeBooking($booking_id){
-    $query = "delete from bookings where id = ?";
+    $query = "delete from ".DATABASE_BOOKINGS_TABLE." where ".DATABASE_BOOKINGS_ID." = ?";
     executeQuerySecure($query, array($booking_id));
 }
 function addCar($name, $plate){
-    $query = "insert into cars_table(name, plate) values (?,?)";
+    $query = "insert into ".DATABASE_CARS_TABLE."(".DATABASE_CARS_NAME.", ".DATABASE_CARS_PLATE.") values (?,?)";
     $values =  array($name, $plate);
     return executeQuerySecure($query, $values);
 }
 
 function removeCar($car_id){
 
-    $query = "delete from cars_table where id=?";//SECONDARY KEY
+    $query = "delete from ".DATABASE_CARS_TABLE." where ".DATABASE_CARS_ID."=?";//SECONDARY KEY
     executeQuerySecure($query, array($car_id));
-    $query = "delete from bookings where car_id = ?";
+    $query = "delete from ".DATABASE_BOOKINGS_TABLE." where ".DATABASE_BOOKINGS_CARID." = ?";
     executeQuerySecure($query, array($car_id));
 }
 function addBooking($date_from, $date_to, $car_id, $pick_up_point, $drop_off_point, $client_name, $tel, $address, $paid){
-    $query = "insert into bookings (date_from, date_to, car_id, pickup_point, dropoff_point, client_name, telephone, address, paid) values (?,?,?,?,?,?,?,?,?)";
+    $query = "insert into ".DATABASE_BOOKINGS_TABLE." (".DATABASE_BOOKINGS_DATEFROM.", ".DATABASE_BOOKINGS_DATETO.", ".DATABASE_BOOKINGS_CARID.", ".DATABASE_BOOKINGS_PICKUPPOINT.", ".DATABASE_BOOKINGS_DROPOFFPOINT.", ".DATABASE_BOOKINGS_CLIENTNAME.", ".DATABASE_BOOKINGS_TELEPHONE.", ".DATABASE_BOOKINGS_ADDRESS.", ".DATABASE_BOOKINGS_PAID.") values (?,?,?,?,?,?,?,?,?)";
     // echo $query;
     $values = array(
         $date_from,
@@ -186,36 +186,36 @@ function addBooking($date_from, $date_to, $car_id, $pick_up_point, $drop_off_poi
     executeQuerySecure($query, $values);
 }
 function updateBooking($id, $date_from, $date_to, $car_id, $pick_up_point, $drop_off_point, $client_name, $tel, $address, $paid){
-    $query = "update bookings 
-    set date_to = ?, date_from=?, car_id = ?, pickup_point = ?, dropoff_point = ?, client_name = ?, telephone = ?, address = ?, paid = ? where id = ?";
+    $query = "update ".DATABASE_BOOKINGS_TABLE." 
+    set ".DATABASE_BOOKINGS_DATETO." = ?, ".DATABASE_BOOKINGS_DATEFROM."=?, ".DATABASE_BOOKINGS_CARID." = ?, ".DATABASE_BOOKINGS_PICKUPPOINT." = ?, ".DATABASE_BOOKINGS_DROPOFFPOINT." = ?, ".DATABASE_BOOKINGS_CLIENTNAME." = ?, ".DATABASE_BOOKINGS_TELEPHONE." = ?, ".DATABASE_BOOKINGS_ADDRESS." = ?, ".DATABASE_BOOKINGS_PAID." = ? where ".DATABASE_BOOKINGS_ID." = ?";
     //echo $query;
     $values = array($date_to, $date_from, $car_id, $pick_up_point, $drop_off_point, $client_name, $tel, $address, $paid, $id);
-    executeQuerySecure($query, $value);
+    executeQuerySecure($query, $values);
 }
 function getCurrentBookings(){
     $current_time = time();
-    $query = "select * from bookings where date_from<? and date_to>?";
+    $query = "select * from ".DATABASE_BOOKINGS_TABLE." where ".DATABASE_BOOKINGS_DATEFROM."<? and ".DATABASE_BOOKINGS_DATETO.">?";
     $result = getQuerySecure($query, array($current_time, $current_time));
     parseCarBooking($result);
     return $result;
 }
 function getPastBookings(){
     $current_time = time();
-    $query = "select * from bookings where date_to < ?";
+    $query = "select * from ".DATABASE_BOOKINGS_TABLE." where ".DATABASE_BOOKINGS_DATETO." < ?";
     $result = getQuerySecure($query, array($current_time));
     parseCarBooking($result);
     return $result;
 }
 function getFutureBookings(){
     $current_time = time();
-    $query = "select * from bookings where date_from>?";
+    $query = "select * from ".DATABASE_BOOKINGS_TABLE." where ".DATABASE_BOOKINGS_DATEFROM.">?";
     $result = getQuerySecure($query, array($current_time));
     parseCarBooking($result);
     return $result;
 }
 function getCarNextBookings($car_id){
     $current_time = time();
-    $query = "select * from bookings where car_id = ? and date_to > ? order by date_from asc";
+    $query = "select * from ".DATABASE_BOOKINGS_TABLE." where ".DATABASE_BOOKINGS_CARID." = ? and ".DATABASE_BOOKINGS_DATETO." > ? order by ".DATABASE_BOOKINGS_DATEFROM." asc";
     $result = getQuerySecure($query, array($car_id, $current_time));
     parseCarBooking($result);
     return $result;
@@ -251,8 +251,8 @@ function executeQuerySecure($query, $values){
 function getAvailableCars(){
     $current_time = time();
 
-    $query = "select * from cars_table where id not in (
-        select car_id as id from cars_table, bookings where cars_table.id = bookings.car_id and (date_from<? and date_to>?)
+    $query = "select * from ".DATABASE_CARS_TABLE." where ".DATABASE_CARS_ID." not in (
+        select ".DATABASE_BOOKINGS_CARID." as ".DATABASE_CARS_ID." from ".DATABASE_CARS_TABLE.", ".DATABASE_BOOKINGS_TABLE." where ".DATABASE_CARS_TABLE.".".DATABASE_CARS_ID." = ".DATABASE_BOOKINGS_TABLE.".".DATABASE_BOOKINGS_CARID." and (".DATABASE_BOOKINGS_DATEFROM."<? and ".DATABASE_BOOKINGS_DATETO.">?)
     ) ";
     $result = getQuerySecure($query, array($current_time, $current_time));
     appendNextBooking($result);
@@ -271,7 +271,7 @@ function makeResponse($status_code, $message){
 
 
 function is_token_valid($token){
-    $query = "select valid from oauth where token = ?";
+    $query = "select ".DATABASE_AUTH_VALID." from ".DATABASE_AUTH_TABLE." where ".DATABASE_AUTH_AUTHTOKEN." = ?";
     $response = getQuerySecure($query , array($token));
 
     if (count($response)>0 ){
@@ -291,7 +291,7 @@ function is_token_valid($token){
 function is_token_granted($token, $permission){
     switch( $permission){
         case PERMISSION_WRITE:
-            $query = "select write_granted from oauth where token = ?";
+            $query = "select ".DATABASE_AUTH_WRITEGRANTED." from ".DATABASE_AUTH_TABLE." where ".DATABASE_AUTH_AUTHTOKEN." = ?";
             $response = getQuerySecure($query, array($token));
             if( count($response)> 0){
                 if( $response[0]->write_granted == '1'){
@@ -304,7 +304,7 @@ function is_token_granted($token, $permission){
             }
             break; 
         case PERMISSION_READ:
-            $query = "select read_granted from oauth where token = ?";
+            $query = "select ".DATABASE_AUTH_READGRANTED." from ".DATABASE_AUTH_TABLE." where ".DATABASE_AUTH_AUTHTOKEN." = ?";
             $response = getQuerySecure($query, array($token));
             if( count($response)> 0){
                 if( $response[0]->read_granted =='1'){
