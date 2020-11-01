@@ -115,17 +115,28 @@ parking_app.controller("parkingController", function($scope,$http){
     }
     
     $scope.addCar = function(name, plate){
-        $http.get(api_get + '?action=add_car&plate='+plate+"&name="+name+'&token='+token)
-        .then(
-            function (data){
-                console.log(data.data);
-                $scope.cars.push(data.data);
-                $scope.newCar = {};
-            },
-            function (data){
-                console.log(data);//TODO NA DOUME TI PAIZEI prepei na allaksoume tin grafiki diepafi
+        var car = {
+            'name': name,
+            'plate': plate
+        };
+        var attrs = {
+            'action':'add_car',
+            'car': car,
+            'token': token
+        };
+        console.log(attrs);
+        var config = {
+            headers : {
+                'Content-Type': 'application/json'
             }
-        );
+        };
+        $http.post(api_post, attrs, config)
+        .then(function (data, status, headers, config){
+            console.log(data.data);
+            $scope.cars.push(data.data);
+            $scope.newCar = {};
+        });
+
     };
     $scope.updateBooking = function(booking){
         var attrs = {
