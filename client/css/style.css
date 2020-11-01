@@ -1,0 +1,11 @@
+body{
+    background-image: url('../assets/road.jpg');
+
+}
+.main-container{
+    background-color: white;
+    padding: 30px;
+    margin-top: 15px;
+    margin-bottom: 30px;
+    border-radius: 20px;
+}
